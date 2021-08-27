@@ -1,4 +1,4 @@
-]## Welcome to my homepage!
+## Welcome to my homepage!
 [Antonio-R1](https://github.com/Antonio-R1)
 
 ### Repositories
