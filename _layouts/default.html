@@ -402,7 +402,11 @@
 
     <main class="main-content">
         <div class="container">
-            {{ content }}
+            <section class="section">
+                <h2 class="section-title">Repositories</h2>
+                <div class="project-grid" id="projectGrid">
+                    </div>
+            </section>
         </div>
     </main>
 
@@ -496,6 +500,85 @@
         }
         
         createMatrixBackground();
+
+        // JavaScript to parse content and create project cards
+        document.addEventListener('DOMContentLoaded', () => {
+            const projectGrid = document.getElementById('projectGrid');
+            const tempDiv = document.createElement('div');
+            // Jekyll will render the Markdown from index.md into this content variable
+            tempDiv.innerHTML = `{{ content | markdownify }}`; 
+
+            const h2 = tempDiv.querySelector('h2'); // The "Repositories" heading
+            if (h2) {
+                // If you want to keep the "Repositories" heading dynamically in the grid,
+                // you might move it out or re-render it. For now, it's assumed
+                // the H2 for "Repositories" is already in the layout, so we're looking
+                // for the content *after* it.
+
+                let currentNode = h2.nextElementSibling;
+                while (currentNode) {
+                    if (currentNode.tagName === 'H3' || currentNode.tagName === 'H4') { // Changed to H3/H4 to match original Markdown depth for project titles
+                        const projectCard = document.createElement('div');
+                        projectCard.className = 'project-card';
+
+                        const projectTitle = document.createElement('h3');
+                        projectTitle.className = 'project-title';
+                        const link = currentNode.querySelector('a');
+                        if (link) {
+                            projectTitle.appendChild(link.cloneNode(true));
+                        } else {
+                            // If it's a heading without a link, just use its text
+                            projectTitle.textContent = currentNode.textContent.trim();
+                        }
+                        projectCard.appendChild(projectTitle);
+
+                        let nextSibling = currentNode.nextElementSibling;
+                        let descriptionContent = [];
+                        let mediaContent = [];
+
+                        while (nextSibling && (nextSibling.tagName !== 'H3' && nextSibling.tagName !== 'H4')) {
+                            if (nextSibling.tagName === 'P' || nextSibling.tagName === 'UL' || nextSibling.tagName === 'OL') {
+                                descriptionContent.push(nextSibling.outerHTML);
+                            } else if (nextSibling.tagName === 'IMG' || nextSibling.tagName === 'IFRAME') {
+                                mediaContent.push(nextSibling.outerHTML);
+                            }
+                            nextSibling = nextSibling.nextElementSibling;
+                        }
+
+                        if (descriptionContent.length > 0) {
+                            const projectDescription = document.createElement('div');
+                            projectDescription.className = 'project-description';
+                            projectDescription.innerHTML = descriptionContent.join('');
+                            projectCard.appendChild(projectDescription);
+                        }
+
+                        if (mediaContent.length > 0) {
+                            const mediaContainer = document.createElement('div');
+                            mediaContainer.className = 'media-container';
+                            mediaContent.forEach(html => {
+                                const tempEl = document.createElement('div');
+                                tempEl.innerHTML = html;
+                                const element = tempEl.firstElementChild;
+                                if (element && element.tagName === 'IFRAME') {
+                                    const videoWrapper = document.createElement('div');
+                                    videoWrapper.className = 'video-wrapper';
+                                    videoWrapper.appendChild(element);
+                                    mediaContainer.appendChild(videoWrapper);
+                                } else if (element) {
+                                    mediaContainer.appendChild(element);
+                                }
+                            });
+                            projectCard.appendChild(mediaContainer);
+                        }
+                        
+                        projectGrid.appendChild(projectCard);
+                        currentNode = nextSibling; // Move to the next project heading
+                    } else {
+                        currentNode = currentNode.nextElementSibling;
+                    }
+                }
+            }
+        });
     </script>
 </body>
 </html>
