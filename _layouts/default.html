@@ -518,68 +518,74 @@
                 // the H2 for "Repositories" is already in the layout, so we're looking
                 // for the content *after* it.
 
-                let currentNode = h2.nextElementSibling;
-                while (currentNode) {
-                    if (currentNode.tagName === 'H3' || currentNode.tagName === 'H4') { // Changed to H3/H4 to match original Markdown depth for project titles
-                        const projectCard = document.createElement('div');
-                        projectCard.className = 'project-card';
+            let currentNode = h2.nextElementSibling;
+            while (currentNode) {
+                if (currentNode.tagName === 'H3' || currentNode.tagName === 'H4') {
+                    const projectCard = document.createElement('div');
+                    projectCard.className = 'project-card';
 
-                        const projectTitle = document.createElement('h3');
-                        projectTitle.className = 'project-title';
-                        const link = currentNode.querySelector('a');
-                        if (link) {
-                            projectTitle.appendChild(link.cloneNode(true));
-                        } else {
-                            // If it's a heading without a link, just use its text
-                            projectTitle.textContent = currentNode.textContent.trim();
-                        }
-                        projectCard.appendChild(projectTitle);
-
-                        let nextSibling = currentNode.nextElementSibling;
-                        let descriptionContent = [];
-                        let mediaContent = [];
-
-                        while (nextSibling && (nextSibling.tagName !== 'H3' && nextSibling.tagName !== 'H4')) {
-                            if (nextSibling.tagName === 'P' || nextSibling.tagName === 'UL' || nextSibling.tagName === 'OL') {
-                                descriptionContent.push(nextSibling.outerHTML);
-                            } else if (nextSibling.tagName === 'IMG' || nextSibling.tagName === 'IFRAME') {
-                                mediaContent.push(nextSibling.outerHTML);
-                            }
-                            nextSibling = nextSibling.nextElementSibling;
-                        }
-
-                        if (descriptionContent.length > 0) {
-                            const projectDescription = document.createElement('div');
-                            projectDescription.className = 'project-description';
-                            projectDescription.innerHTML = descriptionContent.join('');
-                            projectCard.appendChild(projectDescription);
-                        }
-
-                        if (mediaContent.length > 0) {
-                            const mediaContainer = document.createElement('div');
-                            mediaContainer.className = 'media-container';
-                            mediaContent.forEach(html => {
-                                const tempEl = document.createElement('div');
-                                tempEl.innerHTML = html;
-                                const element = tempEl.firstElementChild;
-                                if (element && element.tagName === 'IFRAME') {
-                                    const videoWrapper = document.createElement('div');
-                                    videoWrapper.className = 'video-wrapper';
-                                    videoWrapper.appendChild(element);
-                                    mediaContainer.appendChild(videoWrapper);
-                                } else if (element) {
-                                    mediaContainer.appendChild(element);
-                                }
-                            });
-                            projectCard.appendChild(mediaContainer);
-                        }
-                        
-                        projectGrid.appendChild(projectCard);
-                        currentNode = nextSibling; // Move to the next project heading
+                    const projectTitle = document.createElement('h3');
+                    projectTitle.className = 'project-title';
+                    const link = currentNode.querySelector('a');
+                    if (link) {
+                        projectTitle.appendChild(link.cloneNode(true));
                     } else {
-                        currentNode = currentNode.nextElementSibling;
+                        projectTitle.textContent = currentNode.textContent.trim();
                     }
+                    projectCard.appendChild(projectTitle);
+
+                    let nextSibling = currentNode.nextElementSibling;
+                    let descriptionContent = [];
+                    let mediaContent = [];
+
+                    while (nextSibling && (nextSibling.tagName !== 'H3' && nextSibling.tagName !== 'H4')) {
+                        // Check if the element is a P tag containing ONLY an IMG
+                        if (nextSibling.tagName === 'P' && nextSibling.children.length === 1 && nextSibling.firstElementChild.tagName === 'IMG') {
+                            mediaContent.push(nextSibling.firstElementChild.outerHTML);
+                        } 
+                        // Check for other media types directly
+                        else if (nextSibling.tagName === 'IMG' || nextSibling.tagName === 'IFRAME') {
+                            mediaContent.push(nextSibling.outerHTML);
+                        } 
+                        // Otherwise, treat it as description content
+                        else if (nextSibling.tagName === 'P' || nextSibling.tagName === 'UL' || nextSibling.tagName === 'OL') {
+                            descriptionContent.push(nextSibling.outerHTML);
+                        }
+                        nextSibling = nextSibling.nextElementSibling;
+                    }
+
+                    if (descriptionContent.length > 0) {
+                        const projectDescription = document.createElement('div');
+                        projectDescription.className = 'project-description';
+                        projectDescription.innerHTML = descriptionContent.join('');
+                        projectCard.appendChild(projectDescription);
+                    }
+
+                    if (mediaContent.length > 0) {
+                        const mediaContainer = document.createElement('div');
+                        mediaContainer.className = 'media-container';
+                        mediaContent.forEach(html => {
+                            const tempEl = document.createElement('div');
+                            tempEl.innerHTML = html;
+                            const element = tempEl.firstElementChild;
+                            if (element && element.tagName === 'IFRAME') {
+                                const videoWrapper = document.createElement('div');
+                                videoWrapper.className = 'video-wrapper';
+                                videoWrapper.appendChild(element);
+                                mediaContainer.appendChild(videoWrapper);
+                            } else if (element) {
+                                mediaContainer.appendChild(element);
+                            }
+                        });
+                        projectCard.appendChild(mediaContainer);
+                    }
+                    
+                    projectGrid.appendChild(projectCard);
+                    currentNode = nextSibling; // Move to the next project heading
+                } else {
+                    currentNode = currentNode.nextElementSibling;
                 }
+            }
             }
         });
     </script>
