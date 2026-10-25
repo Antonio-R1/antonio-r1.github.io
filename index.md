@@ -12,4 +12,4 @@ A 3D browser game written in HTML5, JavaScript and WebGL in which the users can 
 ### [Pico 2W low-power with WL_ON enabled](https://github.com/Antonio-R1/pico-2w_low_power_wl_on)
 The goal of this repository is to reduce the power consumption of the CYW43439 while maintaining the ability to control the onboard LED of the Raspberry Pi Pico 2 W or keep BLE advertising active.
 
-We tried to enable the low-power modes of the CYW43439 and, according to our measurements, reduced the board's current consumption with WLAN_ON enabled, while keeping BLE advertising active and disabling the pstate and RAM.
+We tried to enable the low-power modes of the CYW43439 and, according to our measurements, reduced the board's current consumption with WLAN_ON enabled, while keeping BLE advertising active and using pstate with disabled RAM.
